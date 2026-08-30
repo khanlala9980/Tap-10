@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -650,7 +651,6 @@
             <span class="task-reward-badge">+1,000 Coins</span>
           </div>
           <div class="task-actions">
-            <!-- یہاں اپنا یوٹیوب لنک ڈالیں -->
             <a href="https://youtube.com" target="_blank" class="task-visit-btn" onclick="visitTask('yt')">Open YouTube</a>
             <button id="task-yt-btn" class="task-claim-btn" onclick="completeTask('yt', 1000)">Check & Claim</button>
           </div>
@@ -663,7 +663,6 @@
             <span class="task-reward-badge">+1,000 Coins</span>
           </div>
           <div class="task-actions">
-            <!-- یہاں اپنا واٹس ایپ لنک ڈالیں -->
             <a href="https://whatsapp.com" target="_blank" class="task-visit-btn" onclick="visitTask('wa')">Open WhatsApp</a>
             <button id="task-wa-btn" class="task-claim-btn" onclick="completeTask('wa', 1000)">Check & Claim</button>
           </div>
@@ -821,12 +820,10 @@
       alert("Successfully claimed 5,000 daily reward coins!");
     }
 
-    // Task Visit Tracker (جب صارف لنک پر کلک کرے گا)
     function visitTask(taskKey) {
       localStorage.setItem("visited_" + taskKey, "true");
     }
 
-    // Task completion handler (اصلی اور سکیور چیکنگ)
     function completeTask(taskKey, rewardAmount) {
       const taskStatus = localStorage.getItem("task_" + taskKey);
       if (taskStatus === "completed") {
@@ -834,7 +831,6 @@
         return;
       }
 
-      // چیک کریں کہ کیا صارف نے لنک اوپن کیا تھا یا نہیں؟
       const hasVisited = localStorage.getItem("visited_" + taskKey);
       if (!hasVisited) {
         alert("⚠️ Please open and visit the channel first before claiming!");
@@ -851,13 +847,17 @@
     function checkTasksStatus() {
       if (localStorage.getItem("task_yt") === "completed") {
         const btn = document.getElementById("task-yt-btn");
-        btn.innerText = "COMPLETED";
-        btn.disabled = true;
+        if(btn) {
+          btn.innerText = "COMPLETED";
+          btn.disabled = true;
+        }
       }
       if (localStorage.getItem("task_wa") === "completed") {
         const btn = document.getElementById("task-wa-btn");
-        btn.innerText = "COMPLETED";
-        btn.disabled = true;
+        if(btn) {
+          btn.innerText = "COMPLETED";
+          btn.disabled = true;
+        }
       }
     }
 
@@ -910,4 +910,3 @@
   </script>
 </body>
 </html>
-
