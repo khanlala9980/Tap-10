@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>TAP 10 Game</title>
+  
+  <!-- TON Connect UI SDK -->
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+    body {
+      background-color: #05050a;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 12px 12px 80px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Views / Pages System */
+    .view-page {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+    .view-page.active-view {
+      display: flex;
+    }
+
+    /* Top Header Bar */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, #121025, #1a1635);
+      border: 1px solid #3d2c6e;
+      border-radius: 16px;
+      padding: 10px 14px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #ffd700, #b8860b);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      font-weight: 900;
+      font-size: 11px;
+      line-height: 1;
+      border: 2px solid #fff;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      color: #fff;
+    }
+
+    .top-right-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .balance-pill {
+      background: #090813;
+      border: 1px solid #4a3b8c;
+      padding: 6px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: bold;
+      font-size: 13px;
+      color: #ffd700;
+    }
+
+    .share-top-btn {
+      background: linear-gradient(135deg, #8338ec, #5b13b9);
+      border: 1px solid #9b51e0;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .menu-icon-btn {
+      background: #1a1635;
+      border: 1px solid #4a3b8c;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .menu-icon-btn span {
+      display: block;
+      width: 16px;
+      height: 2px;
+      background: #fff;
+      border-radius: 2px;
+    }
+
+    /* Top Grid Cards */
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .card-box {
+      background: linear-gradient(145deg, #121022, #1c1838);
+      border: 1px solid #38286b;
+      border-radius: 16px;
+      padding: 12px;
+      position: relative;
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #e0e0e0;
+      margin-bottom: 2px;
+    }
+
+    .card-subtitle {
+      font-size: 10px;
+      color: #999;
+      margin-bottom: 10px;
+    }
+
+    .payment-icons {
+      display: flex;
+      justify-content: space-between;
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .pay-item {
+      background: #0b0916;
+      border: 1px solid #2d2256;
+      border-radius: 10px;
+      padding: 6px 4px;
+      text-align: center;
+      flex: 1;
+    }
+
+    .pay-item div {
+      font-size: 9px;
+      font-weight: bold;
+      color: #ccc;
+    }
+
+    .pay-item span {
+      display: block;
+      font-size: 7px;
+      background: #d4a017;
+      color: #000;
+      font-weight: bold;
+      padding: 2px 3px;
+      border-radius: 4px;
+      margin-top: 3px;
+    }
+
+    /* Middle Arena */
+    .arena-section {
+      display: grid;
+      grid-template-columns: 80px 1fr 80px;
+      align-items: center;
+      background: radial-gradient(circle, #1a1236 0%, #080612 80%);
+      border: 1px solid #3c2a75;
+      border-radius: 20px;
+      padding: 16px 8px;
+      text-align: center;
+      position: relative;
+    }
+
+    .side-widget {
+      background: #110e24;
+      border: 1px solid #312361;
+      border-radius: 14px;
+      padding: 10px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .side-widget span {
+      font-size: 10px;
+      font-weight: bold;
+      color: #bbb;
+    }
+
+    .side-widget strong {
+      font-size: 11px;
+      color: #ffd700;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 4px;
+      background: #000;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #8338ec, #ff007f);
+    }
+
+    .mini-action-btn {
+      background: linear-gradient(90deg, #3a1c71, #d76d77);
+      border: none;
+      color: #fff;
+      font-size: 9px;
+      font-weight: bold;
+      padding: 4px 6px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* Giant Center Tap Button */
+    .tap-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tap-ring-outer {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #2a1b54 0%, #0d091e 70%);
+      border: 4px solid #ffd700;
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.3), inset 0 0 20px rgba(131, 56, 236, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.05s ease;
+    }
+
+    .tap-ring-outer:active {
+      transform: scale(0.94);
+    }
+
+    .tap-core {
+      text-align: center;
+    }
+
+    .tap-core h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 900;
+      background: linear-gradient(180deg, #fff 30%, #ffd700 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .tap-core span {
+      font-size: 22px;
+      font-weight: 900;
+      background: linear-gradient(180deg, #ffea75 0%, #d4a017 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .tap-instruction {
+      font-size: 11px;
+      font-weight: bold;
+      color: #d8b4fe;
+      margin-top: 8px;
+      letter-spacing: 1px;
+    }
+
+    /* Daily Reward Banner */
+    .daily-reward-card {
+      background: linear-gradient(135deg, #16122c, #261b4a);
+      border: 1px solid #483387;
+      border-radius: 16px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .reward-info h4 {
+      margin: 0 0 2px 0;
+      font-size: 14px;
+      color: #ffd700;
+      font-weight: 800;
+    }
+
+    .reward-info p {
+      margin: 0;
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    .claim-btn {
+      background: linear-gradient(90deg, #f0b90b, #d4a017);
+      color: #000;
+      border: none;
+      padding: 8px 16px;
+      font-weight: 900;
+      font-size: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(240, 185, 11, 0.4);
+    }
+
+    .claim-btn:disabled {
+      background: #444;
+      color: #888;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Inner Page Content Design */
+    .page-box {
+      background: linear-gradient(145deg, #121022, #1c1838);
+      border: 1px solid #38286b;
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .page-box h2 {
+      color: #ffd700;
+      margin-top: 0;
+      font-size: 18px;
+      text-align: center;
+    }
+    .page-box p {
+      color: #bbb;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* Task Item Styles */
+    .task-card-item {
+      background: #090813;
+      border: 1px solid #2d2256;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .task-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .task-title-text {
+      font-size: 13px;
+      font-weight: bold;
+      color: #fff;
+    }
+    .task-reward-badge {
+      font-size: 11px;
+      color: #ffd700;
+      font-weight: bold;
+    }
+    .task-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .task-visit-btn {
+      flex: 1;
+      background: #1a1635;
+      border: 1px solid #4a3b8c;
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+    .task-claim-btn {
+      flex: 1;
+      background: linear-gradient(90deg, #f0b90b, #d4a017);
+      border: none;
+      color: #000;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .task-claim-btn:disabled {
+      background: #333;
+      color: #777;
+      cursor: not-allowed;
+    }
+
+    /* Modal Styling for Share */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #121025;
+      border: 1px solid #4a3b8c;
+      width: 90%;
+      max-width: 360px;
+      border-radius: 20px;
+      padding: 20px;
+      text-align: center;
+    }
+    .modal-content h3 {
+      color: #ffd700;
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+    .share-options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .share-opt-btn {
+      background: #1a1635;
+      border: 1px solid #3d2c6e;
+      color: #fff;
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .close-modal-btn {
+      background: #ff007f;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #080612;
+      border-top: 1px solid #221a40;
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+      z-index: 100;
+    }
+
+    .nav-item {
+      background: none;
+      border: none;
+      color: #777;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 9px;
+      font-weight: bold;
+      cursor: pointer;
+      gap: 3px;
+    }
+
+    .nav-item.active {
+      color: #ffd700;
+    }
+
+    .nav-item.center-tap-nav {
+      position: relative;
+      top: -16px;
+    }
+
+    .center-nav-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8338ec, #5b13b9);
+      border: 2px solid #ffd700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(131, 56, 236, 0.6);
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Top Header -->
+    <div class="top-header">
+      <div class="brand-logo">
+        <div class="logo-circle">TAP<br>10</div>
+        <div class="brand-title">TAP 10</div>
+      </div>
+      <div class="top-right-group">
+        <button class="share-top-btn" onclick="openShareModal()">📤 Share</button>
+        <div class="balance-pill">
+          🪙 <span id="balance-num">125,680</span>
+        </div>
+        <div class="menu-icon-btn" onclick="openMenu()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 1. HOME VIEW ================= -->
+    <div id="view-home" class="view-page active-view">
+      <div class="top-grid">
+        <div class="card-box">
+          <div class="card-title">CONNECT WALLET</div>
+          <div class="card-subtitle">Secure your coins</div>
+          <div id="ton-connect-btn"></div>
+        </div>
+
+        <div class="card-box">
+          <div class="card-title" style="font-size:11px;">PAYMENT & TASKS</div>
+          <div class="card-subtitle">Connect wallet/tasks</div>
+          <div class="payment-icons">
+            <div class="pay-item">
+              <div>JazzCash</div>
+              <span>SOON</span>
+            </div>
+            <div class="pay-item">
+              <div>EasyPaisa</div>
+              <span>SOON</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arena-section">
+        <div class="side-widget">
+          <span>⚡ ENERGY</span>
+          <strong id="energy-text">5000 / 5000</strong>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="energy-bar"></div>
+          </div>
+          <span style="font-size:8px; color:#888;">Refills fast</span>
+        </div>
+
+        <div class="tap-container">
+          <div class="tap-ring-outer" onclick="tapCoin(event)">
+            <div class="tap-core">
+              <h1>TAP</h1>
+              <span>10</span>
+            </div>
+          </div>
+          <div class="tap-instruction">👆 TAP - TAP - TAP</div>
+        </div>
+
+        <div class="side-widget">
+          <span>🚀 BOOST</span>
+          <strong style="color:#00ffcc;">x2 COINS</strong>
+          <span style="font-size:8px; color:#aaa;">Active Multiplier</span>
+          <button class="mini-action-btn" onclick="boostAction()">ACTIVATE</button>
+        </div>
+      </div>
+
+      <div class="daily-reward-card">
+        <div class="reward-info">
+          <h4>DAILY REWARD</h4>
+          <p id="reward-desc">Claim your daily free bonus</p>
+        </div>
+        <button class="claim-btn" id="claim-btn" onclick="claimDaily()">CLAIM NOW</button>
+      </div>
+    </div>
+
+    <!-- ================= 2. TASKS VIEW ================= -->
+    <div id="view-tasks" class="view-page">
+      <div class="page-box">
+        <h2>📋 SOCIAL TASKS</h2>
+        <p>Complete tasks, follow channels, and earn instant rewards!</p>
+        
+        <!-- YouTube Task -->
+        <div class="task-card-item">
+          <div class="task-info-row">
+            <span class="task-title-text">📺 Subscribe YouTube Channel</span>
+            <span class="task-reward-badge">+1,000 Coins</span>
+          </div>
+          <div class="task-actions">
+            <!-- یہاں اپنا یوٹیوب لنک ڈالیں -->
+            <a href="https://youtube.com" target="_blank" class="task-visit-btn" onclick="visitTask('yt')">Open YouTube</a>
+            <button id="task-yt-btn" class="task-claim-btn" onclick="completeTask('yt', 1000)">Check & Claim</button>
+          </div>
+        </div>
+
+        <!-- WhatsApp Task -->
+        <div class="task-card-item">
+          <div class="task-info-row">
+            <span class="task-title-text">💬 Join WhatsApp Channel</span>
+            <span class="task-reward-badge">+1,000 Coins</span>
+          </div>
+          <div class="task-actions">
+            <!-- یہاں اپنا واٹس ایپ لنک ڈالیں -->
+            <a href="https://whatsapp.com" target="_blank" class="task-visit-btn" onclick="visitTask('wa')">Open WhatsApp</a>
+            <button id="task-wa-btn" class="task-claim-btn" onclick="completeTask('wa', 1000)">Check & Claim</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= 3. TAP VIEW ================= -->
+    <div id="view-tap" class="view-page">
+      <div class="page-box" style="display:flex; flex-direction:column; align-items:center;">
+        <h2>👆 TAP ARENA</h2>
+        <p>Tap fast to mine more coins!</p>
+        <div class="tap-ring-outer" onclick="tapCoin(event)" style="margin: 20px 0;">
+          <div class="tap-core">
+            <h1>TAP</h1>
+            <span>10</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 4. REWARDS VIEW ================= -->
+    <div id="view-rewards" class="view-page">
+      <div class="page-box">
+        <h2>🎁 SPECIAL REWARDS</h2>
+        <p>Check back regularly for special milestone rewards and events.</p>
+      </div>
+    </div>
+
+    <!-- ================= 5. PROFILE VIEW ================= -->
+    <div id="view-profile" class="view-page">
+      <div class="page-box">
+        <h2>👤 USER PROFILE</h2>
+        <p>Your wallet and account status details.</p>
+        <div style="background:#090813; padding:12px; border-radius:10px; margin-top:10px; border:1px solid #2d2256; text-align:left;">
+          <div><strong>Status:</strong> <span style="color:#00ffcc;">Active</span></div>
+          <div><strong>Coins:</strong> <span id="profile-coins" style="color:#ffd700;">125,680</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Share Modal Pop-up -->
+  <div id="shareModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Share & Earn</h3>
+      <p style="margin-bottom:15px; color:#bbb;">Share this game with your friends!</p>
+      
+      <div class="share-options-grid">
+        <button class="share-opt-btn" onclick="copyShareLink()">📋 Copy Link</button>
+        <a id="share-wa" href="#" target="_blank" class="share-opt-btn">💬 WhatsApp</a>
+        <a id="share-tg" href="#" target="_blank" class="share-opt-btn">✈️ Telegram</a>
+        <a id="share-fb" href="#" target="_blank" class="share-opt-btn">📘 Facebook</a>
+      </div>
+      
+      <button class="close-modal-btn" onclick="closeShareModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="switchNav('home', this)">
+      🏠
+      <span>HOME</span>
+    </button>
+    <button class="nav-item" onclick="switchNav('tasks', this)">
+      📋
+      <span>TASKS</span>
+    </button>
+    <button class="nav-item center-tap-nav" onclick="switchNav('tap', document.querySelectorAll('.nav-item')[2])">
+      <div class="center-nav-circle">👆</div>
+      <span style="color:#ffd700;">TAP</span>
+    </button>
+    <button class="nav-item" onclick="switchNav('rewards', this)">
+      🎁
+      <span>REWARDS</span>
+    </button>
+    <button class="nav-item" onclick="switchNav('profile', this)">
+      👤
+      <span>PROFILE</span>
+    </button>
+  </div>
+
+  <script>
+    let coins = localStorage.getItem("user_coins") ? parseFloat(localStorage.getItem("user_coins")) : 125680;
+    let energy = 5000;
+    const maxEnergy = 5000;
+    const gameUrl = window.location.href;
+    
+    const tapAudio = new Audio('https://www.myinstants.com/media/sounds/coin-geschaus.mp3');
+
+    function updateDisplay() {
+      document.getElementById("balance-num").innerText = Math.floor(coins).toLocaleString();
+      if(document.getElementById("profile-coins")) {
+        document.getElementById("profile-coins").innerText = Math.floor(coins).toLocaleString();
+      }
+      document.getElementById("energy-text").innerText = `${energy} / ${maxEnergy}`;
+      let percent = (energy / maxEnergy) * 100;
+      document.getElementById("energy-bar").style.width = percent + "%";
+      localStorage.setItem("user_coins", coins);
+    }
+
+    function tapCoin(event) {
+      if (energy > 0) {
+        coins += 1;
+        energy -= 1;
+        updateDisplay();
+        tapAudio.currentTime = 0;
+        tapAudio.play().catch(err => console.log(err));
+      } else {
+        alert("Energy is empty! Wait for it to refill.");
+      }
+    }
+
+    setInterval(() => {
+      if (energy < maxEnergy) {
+        energy = Math.min(maxEnergy, energy + 10);
+        updateDisplay();
+      }
+    }, 1000);
+
+    function checkDailyReward() {
+      const lastClaimTime = localStorage.getItem("last_claim_time");
+      const currentTime = new Date().getTime();
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+
+      if (lastClaimTime && (currentTime - lastClaimTime < twentyFourHours)) {
+        const btn = document.getElementById("claim-btn");
+        if(btn) {
+          btn.innerText = "CLAIMED";
+          btn.disabled = true;
+        }
+        if(document.getElementById("reward-desc")) {
+          document.getElementById("reward-desc").innerText = "Come back tomorrow for more!";
+        }
+      }
+    }
+
+    function claimDaily() {
+      const lastClaimTime = localStorage.getItem("last_claim_time");
+      const currentTime = new Date().getTime();
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+
+      if (lastClaimTime && (currentTime - lastClaimTime < twentyFourHours)) {
+        alert("You have already claimed your daily reward! Come back tomorrow.");
+        return;
+      }
+
+      coins += 5000;
+      localStorage.setItem("last_claim_time", currentTime);
+      updateDisplay();
+      checkDailyReward();
+      alert("Successfully claimed 5,000 daily reward coins!");
+    }
+
+    // Task Visit Tracker (جب صارف لنک پر کلک کرے گا)
+    function visitTask(taskKey) {
+      localStorage.setItem("visited_" + taskKey, "true");
+    }
+
+    // Task completion handler (اصلی اور سکیور چیکنگ)
+    function completeTask(taskKey, rewardAmount) {
+      const taskStatus = localStorage.getItem("task_" + taskKey);
+      if (taskStatus === "completed") {
+        alert("You have already completed this task!");
+        return;
+      }
+
+      // چیک کریں کہ کیا صارف نے لنک اوپن کیا تھا یا نہیں؟
+      const hasVisited = localStorage.getItem("visited_" + taskKey);
+      if (!hasVisited) {
+        alert("⚠️ Please open and visit the channel first before claiming!");
+        return;
+      }
+
+      coins += rewardAmount;
+      localStorage.setItem("task_" + taskKey, "completed");
+      updateDisplay();
+      checkTasksStatus();
+      alert(`Task completed successfully! +${rewardAmount} coins added.`);
+    }
+
+    function checkTasksStatus() {
+      if (localStorage.getItem("task_yt") === "completed") {
+        const btn = document.getElementById("task-yt-btn");
+        btn.innerText = "COMPLETED";
+        btn.disabled = true;
+      }
+      if (localStorage.getItem("task_wa") === "completed") {
+        const btn = document.getElementById("task-wa-btn");
+        btn.innerText = "COMPLETED";
+        btn.disabled = true;
+      }
+    }
+
+    function openShareModal() {
+      document.getElementById("shareModal").style.display = "flex";
+      const shareText = encodeURIComponent("Check out this awesome TAP 10 Game and earn coins!");
+      document.getElementById("share-wa").href = `https://api.whatsapp.com/send?text=${shareText}%20${encodeURIComponent(gameUrl)}`;
+      document.getElementById("share-tg").href = `https://t.me/share/url?url=${encodeURIComponent(gameUrl)}&text=${shareText}`;
+      document.getElementById("share-fb").href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(gameUrl)}`;
+    }
+
+    function closeShareModal() {
+      document.getElementById("shareModal").style.display = "none";
+    }
+
+    function copyShareLink() {
+      navigator.clipboard.writeText(gameUrl).then(() => {
+        alert("Game link copied to clipboard!");
+      }).catch(err => {
+        alert("Failed to copy link.");
+      });
+    }
+
+    function boostAction() {
+      alert("Boost x2 Coins is active for your taps!");
+    }
+
+    function openMenu() {
+      alert("Menu & Settings options will open here.");
+    }
+
+    function switchNav(pageId, el) {
+      document.querySelectorAll('.view-page').forEach(view => view.classList.remove('active-view'));
+      const targetView = document.getElementById('view-' + pageId);
+      if(targetView) {
+        targetView.classList.add('active-view');
+      }
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      if(el) el.classList.add('active');
+    }
+
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: 'https://friendly-buttercream-13b807.netlify.app/tonconnect-manifest.json',
+      buttonRootId: 'ton-connect-btn'
+    });
+
+    updateDisplay();
+    checkDailyReward();
+    checkTasksStatus();
+  </script>
+</body>
+</html>
+
